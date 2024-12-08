@@ -30,23 +30,31 @@ app.get('/users', (req, res) => {
     res.send(html);
 });
 
-// JSON
+// Routing 1 
 app.route('/api/users')
 .get((req, res) => {
+    res.setHeader("name","Git-aru")
     return res.json(users);
 })
 .post((req,res) => {
     const body = req.body;
+    if(!body || !body.first_name || !body.last_name || !body.email || !body.gender || !body.car_model){
+        return res.status(400).json({status : "Bad Request", message : "All entries required"});
+    }
     users.push({...body, id: users.length + 1});
     fs.writeFile('./DATA.json', JSON.stringify(users), (err, data) => {
-        return res.json({status : "Success", id: users.length});
+        return res.status(201).json({status : "Success", id: users.length});
     });
 });
 
+// Routing 2
 app.route('/api/users/:id')
 .get((req, res) => {
     const id = Number(req.params.id);
     const user = users.find((user) => user.id == id);
+    if(!user){
+        res.status(404).json({status : "Not Found", message : "No user exsist"});
+    }
     return res.json(user); 
 })
 .patch((req, res) => {
@@ -88,9 +96,19 @@ app.route('/api/users/:id')
     const id = Number(req.params.id);
     const userIndex = users.findIndex((user) => user.id == id);
     
+    if(userIndex == -1){
+        return res.status(400).json({error : "No user found"});
+    }
+
     const delUser = users.splice(userIndex,1)[0];
 
     fs.writeFile('./DATA.json', JSON.stringify(users), (err, data) => {
+        if(err){
+            return res.status(500).json({
+                status : "Internal server error",
+                message : "Error"
+            });
+        }
         return res.json({status: "Deleted Successfully",delUser});
     });
 });

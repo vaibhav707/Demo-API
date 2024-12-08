@@ -3,3 +3,27 @@
 1733666376197: GET: /api/users
 1733666395630: GET: /api/users
 1733666505065: ::1: GET: /api/users
+1733675972305: ::1: GET: /api/users
+1733676205809: ::1: GET: /api/users
+1733676468601: ::1: GET: /api/users
+1733676618267: ::1: GET: /api/users
+1733676639897: ::1: GET: /api/users
+1733684344228: ::1: GET: /api/users
+1733684442548: ::1: POST: /api/users
+1733684465999: ::1: POST: /api/users
+1733684530086: ::1: POST: /api/users
+1733684544368: ::1: POST: /api/users
+1733684962706: ::1: POST: /api/users
+1733685280727: ::1: GET: /api/users/1008
+1733685602835: ::1: DELETE: /api/users/1008
+1733685731376: ::1: DELETE: /api/users/1008
+1733685737375: ::1: DELETE: /api/users/1004
+1733685743591: ::1: DELETE: /api/users/1003
+1733685746397: ::1: DELETE: /api/users/1002
+1733685749743: ::1: DELETE: /api/users/1001
+1733685756460: ::1: DELETE: /api/users/1000
+1733685890465: ::1: DELETE: /api/users/1000
+1733685899303: ::1: DELETE: /api/users/1009
+1733686059028: ::1: DELETE: /api/users/1009
+1733686066781: ::1: DELETE: /api/users/999
+1733686076510: ::1: GET: /api/users
