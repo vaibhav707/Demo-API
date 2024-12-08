@@ -9,6 +9,13 @@ const PORT = 8000;
 // Middleware : Plugin
 app.use(express.urlencoded({extended : false}));
 
+// Middleware 1
+app.use((req, res, next) => {
+    fs.appendFile('log.txt', `\n${Date.now()}: ${req.ip}: ${req.method}: ${req.path}`, () => {
+        next();
+    });
+});
+
 app.get('/', (req, res) => {
     return res.end("Homepage");
 });
