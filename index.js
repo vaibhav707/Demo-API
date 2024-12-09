@@ -1,10 +1,43 @@
 const express = require("express");
-const users = require("./DATA.json");
-const url = require("url");
 const fs = require("fs");
+const mongoose = require("mongoose");
 
 const app = express();
 const PORT = 8000;
+
+// Connection
+
+mongoose
+.connect("mongodb://127.0.0.1:27017/demo-api")
+.then(() => console.log("MongoDB connected"))
+.catch(err => console.log("Error", err));
+
+// Schema
+const userSchema = new mongoose.Schema({
+    firstName: {
+        type: String,
+        required: true,
+    },
+    lastName: {
+        type: String,
+    },
+    email: {
+        type: String,
+        required: true,
+        unique: true,
+    },
+    gender: {
+        type: String,
+        required: true,
+    },
+    carModel: {
+        type: String,
+    }
+}, {timestamps : true}
+);
+
+// Model
+const User = mongoose.model('user', userSchema);
 
 // Middleware : Plugin
 app.use(express.urlencoded({extended : false}));
@@ -21,10 +54,11 @@ app.get('/', (req, res) => {
 });
 
 // HTML doc
-app.get('/users', (req, res) => {
+app.get('/users', async(req, res) => {
+    const allUsers = await User.find({});
     const html = `
     <ul>
-        ${users.map((user) => `<li>${user.first_name}</li>`).join("")}
+        ${allUsers.map((user) => `<li>${user.firstName} - ${user.email}</li>`).join("")}
     </ul>
     `;
     res.send(html);
@@ -32,85 +66,41 @@ app.get('/users', (req, res) => {
 
 // Routing 1 
 app.route('/api/users')
-.get((req, res) => {
-    res.setHeader("name","Git-aru")
-    return res.json(users);
+.get(async(req, res) => {
+    const allUsers = await User.find({});
+    return res.json(allUsers);
 })
-.post((req,res) => {
+.post(async(req,res) => {
     const body = req.body;
     if(!body || !body.first_name || !body.last_name || !body.email || !body.gender || !body.car_model){
         return res.status(400).json({status : "Bad Request", message : "All entries required"});
     }
-    users.push({...body, id: users.length + 1});
-    fs.writeFile('./DATA.json', JSON.stringify(users), (err, data) => {
-        return res.status(201).json({status : "Success", id: users.length});
+    await User.create({
+        firstName: body.first_name,
+        lastName: body.last_name,
+        email: body.email,
+        gender: body.gender,
+        carModel: body.car_model,
     });
+    return res.status(201).json({message : "success"});
 });
 
 // Routing 2
 app.route('/api/users/:id')
-.get((req, res) => {
-    const id = Number(req.params.id);
-    const user = users.find((user) => user.id == id);
+.get(async(req, res) => {
+    const user = await User.findById(req.params.id);
     if(!user){
         res.status(404).json({status : "Not Found", message : "No user exsist"});
     }
     return res.json(user); 
 })
-.patch((req, res) => {
-
-    // // getId stores the Id from the given Parameters in the URL.
-    // const getId = Number(req.params.id);
-
-    // // body stores the body in which we've to make changes.
-    // const body = req.body;
-
-    // // Finding the user Id from the user array.
-    // const userIndex = users.findIndex((user) => user.id === getId);
-
-    // // If we found a user with its Id then gotUser stores that object.
-    // const gotUser = users[userIndex];
-
-    // // Here gotUser has the user Object and body has the changes we have to made.
-    // const updatedUser = {...gotUser,...body};
-
-    // // After Merging them, Update the users Array.
-    // users[userIndex] = updatedUser;
-
-    const id = Number(req.params.id);
-    const userID = users.findIndex((user) => user.id == id);
-    const body = req.body;
-
-    const gotUser = users[userID];
-    const updatedUser = {...gotUser,...body};
-
-    users[userID] = updatedUser;
-
-    // Lastly, write the changes into the json file.
-    fs.writeFile('./DATA.json', JSON.stringify(users), (err, data) => {
-      return res.json({ status: "Success", updatedUser});
-    })
+.patch(async(req, res) => {
+    await User.findByIdAndUpdate(req.params.id, {firstName: "Changed"});
+    return res.json({ status: "Success"});
 })
-.delete((req,res) => {
-
-    const id = Number(req.params.id);
-    const userIndex = users.findIndex((user) => user.id == id);
-    
-    if(userIndex == -1){
-        return res.status(400).json({error : "No user found"});
-    }
-
-    const delUser = users.splice(userIndex,1)[0];
-
-    fs.writeFile('./DATA.json', JSON.stringify(users), (err, data) => {
-        if(err){
-            return res.status(500).json({
-                status : "Internal server error",
-                message : "Error"
-            });
-        }
-        return res.json({status: "Deleted Successfully",delUser});
-    });
+.delete(async(req,res) => {
+    await User.findByIdAndDelete(req.params.id);
+    return res.json({status: "Deleted Successfully"});
 });
 
 

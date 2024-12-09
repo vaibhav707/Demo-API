@@ -14,3 +14,14 @@ POST /api/users - Create new user
 PATCH /api/users/id - Edit the user with ID id
 
 DELETE /api/users/id - Delete the user with ID id
+
+
+Mongoose - 
+
+Schema - Define the structure ( {
+   id : 1001
+   fisrt_name : "Vaibhav"
+})
+   Schema -> Model
+   Using model we do CRUD operations
+
